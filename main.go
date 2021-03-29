@@ -4,12 +4,6 @@
 // displays state of joystick id 2
 package main
 
-import (
-	"fmt"
-
-	"github.com/SpicyChickenFLY/joy2mouse/xgc"
-)
-
 // func printAt(x, y int, s string) {
 // 	for _, r := range s {
 // 		termbox.SetCell(x, y, r, termbox.ColorDefault, termbox.ColorDefault)
@@ -17,7 +11,7 @@ import (
 // 	}
 // }
 
-// func readJoystick(js joystick.Joystick) {
+// func readJoystick(js xgc.Joystick) {
 // 	jinfo, err := js.Read()
 
 // 	if err != nil {
@@ -53,7 +47,7 @@ import (
 // 		jsid = i
 // 	}
 
-// 	js, jserr := joystick.Open(jsid)
+// 	js, jserr := xgc.OpenXGC(jsid)
 
 // 	if jserr != nil {
 // 		fmt.Println(jserr)
@@ -97,23 +91,3 @@ import (
 // 		}
 // 	}
 // }
-
-func main() {
-	jsid := 0
-	js, err := xgc.OpenXGC(jsid)
-	if err != nil {
-		panic(err)
-	}
-
-	state, err := js.GetState()
-	if err != nil {
-		panic(err)
-	}
-
-	if err := js.SetState(30000, 65535); err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Axis Data: %v", state)
-	js.Close()
-}
