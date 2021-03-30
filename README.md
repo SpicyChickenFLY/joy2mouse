@@ -1,2 +1,2 @@
-# joy2mouse
-Map joystick to mouse
+# xinput2mouse
+Map xbox game controller input（Stick，Button） to mouse（click，move）
