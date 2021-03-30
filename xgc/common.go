@@ -45,13 +45,13 @@ type XINPUT_CAPABILITIES struct {
 }
 
 type XINPUT_GAMEPAD struct {
-	wButtons      WORD
-	bLeftTrigger  BYTE  // 0~255
-	bRightTrigger BYTE  // 0~255
-	sThumbLX      SHORT // -32768~32767
-	sThumbLY      SHORT // -32768~32767
-	sThumbRX      SHORT // -32768~32767
-	sThumbRY      SHORT // -32768~32767
+	Buttons      WORD
+	LeftTrigger  BYTE  // 0~255
+	RightTrigger BYTE  // 0~255
+	ThumbLX      SHORT // -32768~32767
+	ThumbLY      SHORT // -32768~32767
+	ThumbRX      SHORT // -32768~32767
+	ThumbRY      SHORT // -32768~32767
 }
 
 type XINPUT_KEYSTROKE struct {
@@ -63,11 +63,11 @@ type XINPUT_KEYSTROKE struct {
 }
 
 type XINPUT_STATE struct {
-	dwPacketNumber DWORD
-	Gamepad        XINPUT_GAMEPAD
+	PacketNumber DWORD
+	Gamepad      XINPUT_GAMEPAD
 }
 
 type XINPUT_VIBRATION struct {
-	wLeftMotorSpeed  WORD // 0~65535
-	wRightMotorSpeed WORD // 0~65535
+	LeftMotorSpeed  WORD // 0~65535
+	RightMotorSpeed WORD // 0~65535
 }

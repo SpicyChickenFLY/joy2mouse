@@ -108,8 +108,8 @@ func (xgc *xgcImpl) GetState() (interface{}, error) {
 }
 
 func (xgc *xgcImpl) SetState(LeftMotorSpeed, RightMotorSpeed uint16) error {
-	xgc.vibration.wLeftMotorSpeed = WORD(LeftMotorSpeed)
-	xgc.vibration.wRightMotorSpeed = WORD(RightMotorSpeed)
+	xgc.vibration.LeftMotorSpeed = WORD(LeftMotorSpeed)
+	xgc.vibration.RightMotorSpeed = WORD(RightMotorSpeed)
 	fmt.Println(xgc)
 	r, _, _ := procXInputSetState.Call(
 		uintptr(xgc.id),
