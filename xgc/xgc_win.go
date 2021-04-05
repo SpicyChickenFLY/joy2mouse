@@ -64,8 +64,8 @@ type Joystick interface {
 type xgcImpl struct {
 	id        int
 	name      string
-	state     XINPUT_STATE
-	vibration XINPUT_VIBRATION
+	state     XinputState
+	vibration XinputVibration
 }
 
 func OpenXGC(id int) (Joystick, error) {

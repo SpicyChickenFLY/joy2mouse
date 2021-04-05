@@ -7,26 +7,26 @@ type BYTE byte
 type SHORT int16
 
 const (
-	XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  = 7849
-	XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE = 8689
-	XINPUT_GAMEPAD_TRIGGER_THRESHOLD    = 30
+	XinputGamepadLeftThumbDeadzone  = 7849
+	XinputGamepadRightThumbDeadzone = 8689
+	XinputGamepadTriggerThreshold   = 30
 )
 
 const (
-	XINPUT_GAMEPAD_DPAD_UP        = 0x0001
-	XINPUT_GAMEPAD_DPAD_DOWN      = 0x0002
-	XINPUT_GAMEPAD_DPAD_LEFT      = 0x0004
-	XINPUT_GAMEPAD_DPAD_RIGHT     = 0x0008
-	XINPUT_GAMEPAD_START          = 0x0010
-	XINPUT_GAMEPAD_BACK           = 0x0020
-	XINPUT_GAMEPAD_LEFT_THUMB     = 0x0040
-	XINPUT_GAMEPAD_RIGHT_THUMB    = 0x0080
-	XINPUT_GAMEPAD_LEFT_SHOULDER  = 0x0100
-	XINPUT_GAMEPAD_RIGHT_SHOULDER = 0x0200
-	XINPUT_GAMEPAD_A              = 0x1000
-	XINPUT_GAMEPAD_B              = 0x2000
-	XINPUT_GAMEPAD_X              = 0x4000
-	XINPUT_GAMEPAD_Y              = 0x8000
+	XinputGamepadDpadUp        = 0x0001
+	XinputGamepadDpadDown      = 0x0002
+	XinputGamepadDpadLeft      = 0x0004
+	XinputGamepadDpadRight     = 0x0008
+	XinputGamepadStart         = 0x0010
+	XinputGamepadBack          = 0x0020
+	XinputGamepadLeftThumb     = 0x0040
+	XinputGamepadRightThumb    = 0x0080
+	XinputGamepadLeftShoulder  = 0x0100
+	XinputGamepadRightShoulder = 0x0200
+	XinputGamepadA             = 0x1000
+	XinputGamepadB             = 0x2000
+	XinputGamepadX             = 0x4000
+	XinputGamepadY             = 0x8000
 )
 
 // -+-CAPABILITIES
@@ -36,15 +36,15 @@ const (
 //  +-STATE
 //  |-----GAMEPAD
 
-type XINPUT_CAPABILITIES struct {
+type XinputCapabilities struct {
 	Type      BYTE
 	SubType   BYTE
 	Flags     WORD
-	Gamepad   XINPUT_GAMEPAD
-	Vibration XINPUT_VIBRATION
+	Gamepad   XinputGamepad
+	Vibration XinputVibration
 }
 
-type XINPUT_GAMEPAD struct {
+type XinputGamepad struct {
 	Buttons      WORD
 	LeftTrigger  BYTE  // 0~255
 	RightTrigger BYTE  // 0~255
@@ -54,7 +54,7 @@ type XINPUT_GAMEPAD struct {
 	ThumbRY      SHORT // -32768~32767
 }
 
-type XINPUT_KEYSTROKE struct {
+type XinputKeyStroke struct {
 	VirtualKey WORD
 	Unicode    WCHAR
 	Flags      WORD
@@ -62,12 +62,12 @@ type XINPUT_KEYSTROKE struct {
 	HidCode    BYTE
 }
 
-type XINPUT_STATE struct {
+type XinputState struct {
 	PacketNumber DWORD
-	Gamepad      XINPUT_GAMEPAD
+	Gamepad      XinputGamepad
 }
 
-type XINPUT_VIBRATION struct {
+type XinputVibration struct {
 	LeftMotorSpeed  WORD // 0~65535
 	RightMotorSpeed WORD // 0~65535
 }
