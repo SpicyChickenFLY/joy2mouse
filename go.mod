@@ -1,9 +1,8 @@
-module github.com/SpicyChickenFLY/joy2mouse
+module github.com/SpicyChickenFLY/xinput2mouse
 
 go 1.15
 
 require (
-	github.com/0xcafed00d/joystick v1.0.1
-	github.com/nsf/termbox-go v1.1.0
-	golang.org/x/sys v0.0.0-20210324051608-47abb6519492
+	github.com/SpicyChickenFLY/joy2mouse v0.0.0-20210405152923-1e217da1ab7a
+	golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57
 )

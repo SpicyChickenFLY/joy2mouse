@@ -1,4 +1,4 @@
-package manager
+package keyboard
 
 var alphabetDict = [][]string{
 	{"a", "b", "c"},
