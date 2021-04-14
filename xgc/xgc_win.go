@@ -13,11 +13,6 @@ const (
 )
 
 var (
-	LTDeadZone = 50
-	LSDeadZone = 50
-)
-
-var (
 	LoadError                 error
 	xinputDLL                 *windows.DLL
 	procXInputEnable          *windows.Proc
@@ -108,8 +103,8 @@ func (xgc *xgcImpl) GetState() (interface{}, error) {
 }
 
 func (xgc *xgcImpl) SetState(LeftMotorSpeed, RightMotorSpeed uint16) error {
-	xgc.vibration.LeftMotorSpeed = WORD(LeftMotorSpeed)
-	xgc.vibration.RightMotorSpeed = WORD(RightMotorSpeed)
+	xgc.vibration.LeftMotorSpeed = LeftMotorSpeed
+	xgc.vibration.RightMotorSpeed = RightMotorSpeed
 	fmt.Println(xgc)
 	r, _, _ := procXInputSetState.Call(
 		uintptr(xgc.id),

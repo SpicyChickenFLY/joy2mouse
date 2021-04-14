@@ -1,15 +1,19 @@
 package xgc
 
-type WCHAR uint16
-type WORD uint16
-type DWORD uint32
-type BYTE byte
-type SHORT int16
+// type WCHAR uint16
+// type WORD uint16
+// type DWORD uint32
+// type BYTE byte
+// type SHORT int16
 
 const (
 	XinputGamepadLeftThumbDeadzone  = 7849
 	XinputGamepadRightThumbDeadzone = 8689
 	XinputGamepadTriggerThreshold   = 30
+)
+
+const (
+	ThumbMax = 32767
 )
 
 const (
@@ -37,37 +41,65 @@ const (
 //  |-----GAMEPAD
 
 type XinputCapabilities struct {
-	Type      BYTE
-	SubType   BYTE
-	Flags     WORD
+	Type      byte
+	SubType   byte
+	Flags     uint16
 	Gamepad   XinputGamepad
 	Vibration XinputVibration
 }
 
 type XinputGamepad struct {
-	Buttons      WORD
-	LeftTrigger  BYTE  // 0~255
-	RightTrigger BYTE  // 0~255
-	ThumbLX      SHORT // -32768~32767
-	ThumbLY      SHORT // -32768~32767
-	ThumbRX      SHORT // -32768~32767
-	ThumbRY      SHORT // -32768~32767
+	Buttons      uint16
+	LeftTrigger  byte  // 0~255
+	RightTrigger byte  // 0~255
+	ThumbLX      int16 // -32768~32767
+	ThumbLY      int16 // -32768~32767
+	ThumbRX      int16 // -32768~32767
+	ThumbRY      int16 // -32768~32767
+}
+
+func (xg *XinputGamepad) JudgeLTPulled() bool {
+	return xg.LeftTrigger > XinputGamepadTriggerThreshold
+}
+
+func (xg *XinputGamepad) JudgeRTPulled() bool {
+	return xg.RightTrigger > XinputGamepadTriggerThreshold
+}
+
+func (xg *XinputGamepad) JudgeThumbLPulled() bool {
+	if xg.ThumbLX > XinputGamepadLeftThumbDeadzone {
+		return true
+	}
+	if xg.ThumbLY > XinputGamepadLeftThumbDeadzone {
+		return true
+	}
+	return false
+}
+
+func (xg *XinputGamepad) JudgeThumbRPulled() bool {
+	if xg.ThumbRX > XinputGamepadRightThumbDeadzone {
+		return true
+	}
+	if xg.ThumbRY > XinputGamepadRightThumbDeadzone {
+		return true
+	}
+	return false
 }
 
 type XinputKeyStroke struct {
-	VirtualKey WORD
-	Unicode    WCHAR
-	Flags      WORD
-	UserIndex  BYTE
-	HidCode    BYTE
+	VirtualKey uint16
+	Unicode    uint16
+	Flags      uint16
+	UserIndex  byte
+	HidCode    byte
 }
 
 type XinputState struct {
-	PacketNumber DWORD
+	PacketNumber uint32
 	Gamepad      XinputGamepad
 }
 
 type XinputVibration struct {
-	LeftMotorSpeed  WORD // 0~65535
-	RightMotorSpeed WORD // 0~65535
+	LeftMotorSpeed  uint16 // 0~65535
+	RightMotorSpeed uint16 // 0~65535
 }
