@@ -16,12 +16,14 @@ type Manager struct {
 	joyMode       int
 	joystick      xgc.Joystick
 	lastPacketNum uint32
-	kbSim         *keyboard.KeyboardSimulator
+	kbSim         *keyboard.Simulator
 	mSim          *mouse.MouseSimulator
 }
 
 func NewManager() Manager {
-	return Manager{}
+	return Manager{
+		kbSim: keyboard.NewSimulator(),
+	}
 }
 
 func (m *Manager) HandleEvent(event, value int) error {
@@ -32,19 +34,23 @@ func (m *Manager) HandleEvent(event, value int) error {
 	state := stateInter.(xgc.XinputState)
 	if state.PacketNumber == m.lastPacketNum {
 		return nil
-	} else { // if changing mode, ignore any other input
-		if (state.Gamepad.Buttons & xgc.XinputGamepadLeftShoulder) > 0 {
-			m.changePrevMode()
-		} else if (state.Gamepad.Buttons & xgc.XinputGamepadRightShoulder) > 0 {
-			m.changeNextMode()
-		} else { // Deliver to correspond simulator
-			switch m.joyMode {
-			case mouseMode:
+	}
+	// if changing mode, ignore any other input
+	if (state.Gamepad.Buttons & xgc.XinputGamepadLeftShoulder) > 0 {
+		m.changePrevMode()
+		return nil
+	}
+	if (state.Gamepad.Buttons & xgc.XinputGamepadRightShoulder) > 0 {
+		m.changeNextMode()
+		return nil
+	}
 
-			case keyboardMode:
-				m.kbSim.Handle(&state.Gamepad)
-			}
-		}
+	// Deliver to correspond simulator
+	switch m.joyMode {
+	case mouseMode:
+
+	case keyboardMode:
+		m.kbSim.Handle(&state.Gamepad)
 	}
 	return nil
 }

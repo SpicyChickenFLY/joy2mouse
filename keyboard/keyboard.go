@@ -7,74 +7,68 @@ import (
 	"github.com/micmonay/keybd_event"
 )
 
-const (
-	alphabetMode = iota
-	// pinyinMode
-
-	modeCount = iota - 1
-)
-
 // judgePosSection 计算所处第几个扇形（以圆形正上方为起点）
 // x, y: 横纵坐标（代表摇杆对应的百分比）
 // l: 代表该圆中存在几个扇形
 func judgePosSection(x, y float64, l int) int {
 	temp := math.Atanh(y / x)
-	degree := int(-temp+90) % 360 // 将极坐标正方向反转后逆时针旋转90度（求余用于溢出角度）
+	// 将极坐标正方向反转后逆时针旋转90度（求余用于溢出角度）
+	degree := int(-temp+90) % 360
 	interval := 360.0 / l
 	return degree % interval
 }
 
-type KeyboardSimulator struct {
-	inputMode int
-	kbEvent   keybd_event.KeyBonding
+//Simulator is the struct of keyboard simulator
+type Simulator struct {
+	kbBond             keybd_event.KeyBonding
+	ltPulled, rtPulled bool
+	buttons            uint16
+	lSec, rSec         int
+	alphabetDict       *[][]string
 }
 
-func (ks *KeyboardSimulator) InitKB(xg *xgc.XinputGamepad) (err error) {
-	ks.kbEvent, err = keybd_event.NewKeyBonding()
-	return err
+// NewSimulator init new keyboard simulator
+func NewSimulator() *Simulator {
+	if kbBond, err := keybd_event.NewKeyBonding(); err == nil {
+		return &Simulator{kbBond, false, false, 0, -1, -1, nil}
+	}
+	return nil
 }
 
-func (ks *KeyboardSimulator) Handle(xg *xgc.XinputGamepad) error {
-	var ltPulled bool
-	var alphabetDict *[][]string
-	// First judge if Left Trigger pulled
-	if xg.JudgeLTPulled() {
-		ltPulled = true
-		alphabetDict = &alphabetHigherCaseDict
+// Handle xinput event
+func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
+	s.ltPulled = xg.JudgeLTPulled()
+	s.rtPulled = xg.JudgeRTPulled()
+	if s.ltPulled {
+		s.alphabetDict = &alphabetHigherCaseDict
 	} else {
-		ltPulled = false
-		alphabetDict = &alphabetLoweraseDict
+		s.alphabetDict = &alphabetLoweraseDict
 	}
+	s.buttons = xg.Buttons
+	if err := s.render(); err != nil {
+		return err
+	}
+	return s.handle()
+}
+
+func (s *Simulator) render() error {
+	return nil
+}
+
+func (s *Simulator) handle() error {
 	// if Right Trigger pulled, judge which key should be simulated
-	if xg.JudgeRTPulled() {
-		lSec, rSec := 0, 0
-		if xg.JudgeThumbLPulled() {
-			lx := float64(xg.ThumbLX) / xgc.ThumbMax
-			ly := float64(xg.ThumbLY) / xgc.ThumbMax
-			ll := len(*alphabetDict)
-			lSec = judgePosSection(lx, ly, ll)
-		}
-		if lSec != 0 {
-			if xg.JudgeThumbRPulled() {
-				rx := float64(xg.ThumbRX) / xgc.ThumbMax
-				ry := float64(xg.ThumbRY) / xgc.ThumbMax
-				rl := len((*alphabetDict)[lSec])
-				rSec = judgePosSection(rx, ry, rl)
-			}
-		}
-		if rSec != 0 {
-			keyVal := (*alphabetDict)[lSec][rSec]
-			ks.kbEvent.HasSHIFT(keyInfoMap[keyVal].Flag&kbEventHasShift > 0)
-			ks.kbEvent.AddKey(keyInfoMap[keyVal].VK)
-			err := ks.kbEvent.Launching()
-			if err != nil {
-				return err
-			}
+	if s.rtPulled && s.lSec > 0 && s.rSec > 0 {
+		keyVal := (*s.alphabetDict)[s.lSec][s.rSec]
+		s.kbBond.HasSHIFT(keyInfoMap[keyVal].Flag&kbEventHasShift > 0)
+		s.kbBond.AddKey(keyInfoMap[keyVal].VK)
+		err := s.kbBond.Launching()
+		if err != nil {
+			return err
 		}
 	}
-	// judge rest input in order and not aborted
-	if xg.Buttons&xgc.XinputGamepadDpad > 0 {
-		if ltPulled {
+	// judge rest xinput by order
+	if s.buttons&xgc.XinputGamepadDpad > 0 {
+		if s.ltPulled {
 
 		} else {
 
@@ -83,4 +77,27 @@ func (ks *KeyboardSimulator) Handle(xg *xgc.XinputGamepad) error {
 	return nil
 }
 
-// func (ks *KeyboardSimulator)
+func (s *Simulator) judgeLPosSec(xg *xgc.XinputGamepad) {
+	if xg.JudgeThumbLPulled() {
+		lx := float64(xg.ThumbLX) / xgc.ThumbMax
+		ly := float64(xg.ThumbLY) / xgc.ThumbMax
+		ll := len(*s.alphabetDict)
+		s.lSec = judgePosSection(lx, ly, ll)
+	} else {
+		s.lSec = -1
+	}
+
+}
+
+func (s *Simulator) judgeRPosSec(xg *xgc.XinputGamepad) {
+	if xg.JudgeThumbRPulled() {
+		rx := float64(xg.ThumbRX) / xgc.ThumbMax
+		ry := float64(xg.ThumbRY) / xgc.ThumbMax
+		rl := len(*s.alphabetDict)
+		s.rSec = judgePosSection(rx, ry, rl)
+	} else {
+		s.rSec = -1
+	}
+}
+
+// func (s *Simulator)
