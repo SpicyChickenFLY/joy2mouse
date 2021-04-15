@@ -33,6 +33,13 @@ const (
 	XinputGamepadY             = 0x8000
 )
 
+const (
+	XinputGamepadDpad     = 0x000F
+	XinputGamepadFunc     = 0x00F0
+	XinputGamepadShoulder = 0x0300
+	XinputGamepadMain     = 0xF000
+)
+
 // -+-CAPABILITIES
 //  |-----GAMEPAD
 //  |-----VIBRATION
