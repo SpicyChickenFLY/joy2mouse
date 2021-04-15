@@ -59,8 +59,8 @@ func (s *Simulator) handle() error {
 	// if Right Trigger pulled, judge which key should be simulated
 	if s.rtPulled && s.lSec > 0 && s.rSec > 0 {
 		keyVal := (*s.alphabetDict)[s.lSec][s.rSec]
-		s.kbBond.HasSHIFT(keyInfoMap[keyVal].Flag&kbEventHasShift > 0)
 		s.kbBond.AddKey(keyInfoMap[keyVal].VK)
+		s.kbBond.HasSHIFT(keyInfoMap[keyVal].Flag&kbEventHasShift > 0)
 		err := s.kbBond.Launching()
 		if err != nil {
 			return err
@@ -69,11 +69,62 @@ func (s *Simulator) handle() error {
 	// judge rest xinput by order
 	if s.buttons&xgc.XinputGamepadDpad > 0 {
 		if s.ltPulled {
-
+			switch {
+			case s.buttons&xgc.XinputGamepadDpadUp > 0:
+				s.kbBond.AddKey(keyInfoMap["PAGEUP"].VK)
+			case s.buttons&xgc.XinputGamepadDpadDown > 0:
+				s.kbBond.AddKey(keyInfoMap["PAGEDOWN"].VK)
+			case s.buttons&xgc.XinputGamepadDpadLeft > 0:
+				s.kbBond.AddKey(keyInfoMap["HOME"].VK)
+			case s.buttons&xgc.XinputGamepadDpadRight > 0:
+				s.kbBond.AddKey(keyInfoMap["HOME"].VK)
+			}
 		} else {
-
+			switch {
+			case s.buttons&xgc.XinputGamepadDpadUp > 0:
+				s.kbBond.AddKey(keyInfoMap["UP"].VK)
+			case s.buttons&xgc.XinputGamepadDpadDown > 0:
+				s.kbBond.AddKey(keyInfoMap["DOWN"].VK)
+			case s.buttons&xgc.XinputGamepadDpadLeft > 0:
+				s.kbBond.AddKey(keyInfoMap["LEFT"].VK)
+			case s.buttons&xgc.XinputGamepadDpadRight > 0:
+				s.kbBond.AddKey(keyInfoMap["RIGHT"].VK)
+			}
 		}
+		err := s.kbBond.Launching()
+		if err != nil {
+			return err
+		}
+		return nil
 	}
+
+	if s.buttons&xgc.XinputGamepadMain > 0 {
+		if s.ltPulled {
+			switch {
+			case s.buttons&xgc.XinputGamepadY > 0:
+				s.kbBond.AddKey(keyInfoMap["TAB"].VK)
+				s.kbBond.HasSHIFT(true)
+			}
+		} else {
+			switch {
+			case s.buttons&xgc.XinputGamepadA > 0:
+				s.kbBond.AddKey(keyInfoMap["SPACE"].VK)
+			case s.buttons&xgc.XinputGamepadB > 0:
+				s.kbBond.AddKey(keyInfoMap["ENTER"].VK)
+			case s.buttons&xgc.XinputGamepadX > 0:
+				s.kbBond.AddKey(keyInfoMap["BACKSPACE"].VK)
+			case s.buttons&xgc.XinputGamepadY > 0:
+				s.kbBond.AddKey(keyInfoMap["TAB"].VK)
+			}
+		}
+		s.kbBond.HasSHIFT(false)
+		err := s.kbBond.Launching()
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
 	return nil
 }
 
