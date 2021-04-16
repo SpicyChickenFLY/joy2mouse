@@ -48,6 +48,8 @@ func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
 	if err := s.render(); err != nil {
 		return err
 	}
+	s.judgeLPosSec(xg)
+	s.judgeRPosSec(xg)
 	return s.handle()
 }
 
@@ -56,6 +58,43 @@ func (s *Simulator) render() error {
 }
 
 func (s *Simulator) handle() error {
+	// handle thumb output
+	if err := s.handleThumb(); err != nil {
+		return err
+	}
+	// judge rest xinput by order
+	if err := s.handleDpad(); err != nil {
+		return err
+	}
+	if err := s.handleMain(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Simulator) judgeLPosSec(xg *xgc.XinputGamepad) {
+	if xg.JudgeThumbLPulled() {
+		lx := float64(xg.ThumbLX) / xgc.ThumbMax
+		ly := float64(xg.ThumbLY) / xgc.ThumbMax
+		ll := len(*s.alphabetDict)
+		s.lSec = judgePosSection(lx, ly, ll)
+	} else {
+		s.lSec = -1
+	}
+}
+
+func (s *Simulator) judgeRPosSec(xg *xgc.XinputGamepad) {
+	if xg.JudgeThumbRPulled() {
+		rx := float64(xg.ThumbRX) / xgc.ThumbMax
+		ry := float64(xg.ThumbRY) / xgc.ThumbMax
+		rl := len(*s.alphabetDict)
+		s.rSec = judgePosSection(rx, ry, rl)
+	} else {
+		s.rSec = -1
+	}
+}
+
+func (s *Simulator) handleThumb() error {
 	// if Right Trigger pulled, judge which key should be simulated
 	if s.rtPulled && s.lSec > 0 && s.rSec > 0 {
 		keyVal := (*s.alphabetDict)[s.lSec][s.rSec]
@@ -66,7 +105,10 @@ func (s *Simulator) handle() error {
 			return err
 		}
 	}
-	// judge rest xinput by order
+	return nil
+}
+
+func (s *Simulator) handleDpad() error {
 	if s.buttons&xgc.XinputGamepadDpad > 0 {
 		if s.ltPulled {
 			switch {
@@ -97,7 +139,10 @@ func (s *Simulator) handle() error {
 		}
 		return nil
 	}
+	return nil
+}
 
+func (s *Simulator) handleMain() error {
 	if s.buttons&xgc.XinputGamepadMain > 0 {
 		if s.ltPulled {
 			switch {
@@ -122,33 +167,8 @@ func (s *Simulator) handle() error {
 		if err != nil {
 			return err
 		}
-		return nil
 	}
-
 	return nil
-}
-
-func (s *Simulator) judgeLPosSec(xg *xgc.XinputGamepad) {
-	if xg.JudgeThumbLPulled() {
-		lx := float64(xg.ThumbLX) / xgc.ThumbMax
-		ly := float64(xg.ThumbLY) / xgc.ThumbMax
-		ll := len(*s.alphabetDict)
-		s.lSec = judgePosSection(lx, ly, ll)
-	} else {
-		s.lSec = -1
-	}
-
-}
-
-func (s *Simulator) judgeRPosSec(xg *xgc.XinputGamepad) {
-	if xg.JudgeThumbRPulled() {
-		rx := float64(xg.ThumbRX) / xgc.ThumbMax
-		ry := float64(xg.ThumbRY) / xgc.ThumbMax
-		rl := len(*s.alphabetDict)
-		s.rSec = judgePosSection(rx, ry, rl)
-	} else {
-		s.rSec = -1
-	}
 }
 
 // func (s *Simulator)

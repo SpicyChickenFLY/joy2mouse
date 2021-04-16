@@ -6,18 +6,23 @@ import (
 	"github.com/SpicyChickenFLY/xinput2mouse/xgc"
 )
 
+// screen mode cant be called by LB/RB
+const screenMode = -1
+
 const (
-	mouseMode = iota
+	joystickMode = iota
+	mouseMode
 	keyboardMode
+
+	modeCount
 )
-const modeCount = 2
 
 type Manager struct {
 	joyMode       int
 	joystick      xgc.Joystick
 	lastPacketNum uint32
 	kbSim         *keyboard.Simulator
-	mSim          *mouse.MouseSimulator
+	mSim          *mouse.Simulator
 }
 
 func NewManager() Manager {
@@ -45,13 +50,26 @@ func (m *Manager) HandleEvent(event, value int) error {
 		return nil
 	}
 
+	// if pushed any func buttons(start,back), ignore any other input
+	if (state.Gamepad.Buttons & xgc.XinputGamepadBack) > 0 {
+
+		return nil
+	}
+	if (state.Gamepad.Buttons & xgc.XinputGamepadStart) > 0 {
+
+		return nil
+	}
+
 	// Deliver to correspond simulator
 	switch m.joyMode {
 	case mouseMode:
 
 	case keyboardMode:
 		m.kbSim.Handle(&state.Gamepad)
+	case joystickMode:
+
 	}
+
 	return nil
 }
 
