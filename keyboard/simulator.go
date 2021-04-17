@@ -1,22 +1,12 @@
 package keyboard
 
 import (
-	"math"
+	"fmt"
 
+	"github.com/SpicyChickenFLY/xinput2mouse/event"
 	"github.com/SpicyChickenFLY/xinput2mouse/xgc"
 	"github.com/micmonay/keybd_event"
 )
-
-// judgePosSection 计算所处第几个扇形（以圆形正上方为起点）
-// x, y: 横纵坐标（代表摇杆对应的百分比）
-// l: 代表该圆中存在几个扇形
-func judgePosSection(x, y float64, l int) int {
-	temp := math.Atanh(y / x)
-	// 将极坐标正方向反转后逆时针旋转90度（求余用于溢出角度）
-	degree := int(-temp+90) % 360
-	interval := 360.0 / l
-	return degree % interval
-}
 
 //Simulator is the struct of keyboard simulator
 type Simulator struct {
@@ -54,6 +44,14 @@ func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
 }
 
 func (s *Simulator) render() error {
+	fmt.Println(*s.alphabetDict)
+	if s.lSec > 0 {
+		fmt.Println((*s.alphabetDict)[s.lSec])
+		if s.rSec > 0 {
+			fmt.Println((*s.alphabetDict)[s.lSec][s.rSec])
+		}
+	}
+
 	return nil
 }
 
@@ -69,7 +67,7 @@ func (s *Simulator) handle() error {
 	if err := s.handleMain(); err != nil {
 		return err
 	}
-	return nil
+	return s.handleFunc()
 }
 
 func (s *Simulator) judgeLPosSec(xg *xgc.XinputGamepad) {
@@ -98,8 +96,8 @@ func (s *Simulator) handleThumb() error {
 	// if Right Trigger pulled, judge which key should be simulated
 	if s.rtPulled && s.lSec > 0 && s.rSec > 0 {
 		keyVal := (*s.alphabetDict)[s.lSec][s.rSec]
-		s.kbBond.AddKey(keyInfoMap[keyVal].VK)
-		s.kbBond.HasSHIFT(keyInfoMap[keyVal].Flag&kbEventHasShift > 0)
+		s.kbBond.AddKey(event.KeyInfoMap[keyVal].VK)
+		s.kbBond.HasSHIFT(event.KeyInfoMap[keyVal].Flag&event.KBEventHasShift > 0)
 		err := s.kbBond.Launching()
 		if err != nil {
 			return err
@@ -113,24 +111,24 @@ func (s *Simulator) handleDpad() error {
 		if s.ltPulled {
 			switch {
 			case s.buttons&xgc.XinputGamepadDpadUp > 0:
-				s.kbBond.AddKey(keyInfoMap["PAGEUP"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["PAGEUP"].VK)
 			case s.buttons&xgc.XinputGamepadDpadDown > 0:
-				s.kbBond.AddKey(keyInfoMap["PAGEDOWN"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["PAGEDOWN"].VK)
 			case s.buttons&xgc.XinputGamepadDpadLeft > 0:
-				s.kbBond.AddKey(keyInfoMap["HOME"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["HOME"].VK)
 			case s.buttons&xgc.XinputGamepadDpadRight > 0:
-				s.kbBond.AddKey(keyInfoMap["HOME"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["HOME"].VK)
 			}
 		} else {
 			switch {
 			case s.buttons&xgc.XinputGamepadDpadUp > 0:
-				s.kbBond.AddKey(keyInfoMap["UP"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["UP"].VK)
 			case s.buttons&xgc.XinputGamepadDpadDown > 0:
-				s.kbBond.AddKey(keyInfoMap["DOWN"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["DOWN"].VK)
 			case s.buttons&xgc.XinputGamepadDpadLeft > 0:
-				s.kbBond.AddKey(keyInfoMap["LEFT"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["LEFT"].VK)
 			case s.buttons&xgc.XinputGamepadDpadRight > 0:
-				s.kbBond.AddKey(keyInfoMap["RIGHT"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["RIGHT"].VK)
 			}
 		}
 		err := s.kbBond.Launching()
@@ -147,19 +145,19 @@ func (s *Simulator) handleMain() error {
 		if s.ltPulled {
 			switch {
 			case s.buttons&xgc.XinputGamepadY > 0:
-				s.kbBond.AddKey(keyInfoMap["TAB"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["TAB"].VK)
 				s.kbBond.HasSHIFT(true)
 			}
 		} else {
 			switch {
 			case s.buttons&xgc.XinputGamepadA > 0:
-				s.kbBond.AddKey(keyInfoMap["SPACE"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["SPACE"].VK)
 			case s.buttons&xgc.XinputGamepadB > 0:
-				s.kbBond.AddKey(keyInfoMap["ENTER"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["ENTER"].VK)
 			case s.buttons&xgc.XinputGamepadX > 0:
-				s.kbBond.AddKey(keyInfoMap["BACKSPACE"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["BACKSPACE"].VK)
 			case s.buttons&xgc.XinputGamepadY > 0:
-				s.kbBond.AddKey(keyInfoMap["TAB"].VK)
+				s.kbBond.AddKey(event.KeyInfoMap["TAB"].VK)
 			}
 		}
 		s.kbBond.HasSHIFT(false)
@@ -171,4 +169,6 @@ func (s *Simulator) handleMain() error {
 	return nil
 }
 
-// func (s *Simulator)
+func (s *Simulator) handleFunc() error {
+	return nil
+}
