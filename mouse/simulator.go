@@ -1,8 +1,10 @@
 package mouse
 
 import (
+	"github.com/SpicyChickenFLY/xinput2mouse/utils"
 	"github.com/SpicyChickenFLY/xinput2mouse/xgc"
 	"github.com/micmonay/keybd_event"
+	"github.com/nsf/termbox-go"
 )
 
 //Simulator is the struct of keyboard simulator
@@ -22,10 +24,12 @@ func NewSimulator() *Simulator {
 
 // Handle xinput event
 func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
+	s.render()
 	return nil
 }
 
 func (s *Simulator) render() error {
+	utils.TBPrint(0, 0, 0, termbox.ColorRed, ">>mouse")
 	return nil
 }
 

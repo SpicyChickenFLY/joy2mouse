@@ -1,11 +1,11 @@
 package keyboard
 
 import (
-	"fmt"
-
 	"github.com/SpicyChickenFLY/xinput2mouse/event"
+	"github.com/SpicyChickenFLY/xinput2mouse/utils"
 	"github.com/SpicyChickenFLY/xinput2mouse/xgc"
 	"github.com/micmonay/keybd_event"
+	"github.com/nsf/termbox-go"
 )
 
 //Simulator is the struct of keyboard simulator
@@ -44,14 +44,25 @@ func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
 }
 
 func (s *Simulator) render() error {
-	fmt.Println(*s.alphabetDict)
-	if s.lSec > 0 {
-		fmt.Println((*s.alphabetDict)[s.lSec])
-		if s.rSec > 0 {
-			fmt.Println((*s.alphabetDict)[s.lSec][s.rSec])
+	utils.TBPrint(0, 0, 0, termbox.ColorRed, ">>keyboard")
+	for i, sec := range *s.alphabetDict {
+		if i == s.lSec {
+			utils.TBPrint(i*3, 1, 0, termbox.ColorRed, sec[0])
+			if s.rSec >= 0 {
+				for j, str := range (*s.alphabetDict)[s.lSec] {
+					if j == s.rSec {
+						utils.TBPrint(j*3, 2, 0, termbox.ColorRed, str)
+					} else {
+						utils.TBPrint(j*3, 2, 0, 0, str)
+					}
+				}
+			}
+		} else {
+			utils.TBPrint(i*3, 1, 0, 0, sec[0])
 		}
 	}
 
+	utils.Flush()
 	return nil
 }
 

@@ -63,18 +63,19 @@ type xgcImpl struct {
 	vibration XinputVibration
 }
 
-func OpenXGC(id int) (Joystick, error) {
+// NewXGC initial new xbox game controller
+func NewXGC(id int) Joystick {
 	if LoadError != nil {
-		return nil, LoadError
+		panic(LoadError)
 	}
 	xgc := &xgcImpl{}
 	xgc.id = id
 	r, _, _ := procXInputEnable.Call(
 		uintptr(1))
 	if r == 0 {
-		return xgc, nil
+		return xgc
 	}
-	return nil, syscall.Errno(r)
+	panic(syscall.Errno(r))
 }
 
 func (xgc *xgcImpl) GetCap() error {

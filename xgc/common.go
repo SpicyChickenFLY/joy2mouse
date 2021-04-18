@@ -74,20 +74,24 @@ func (xg *XinputGamepad) JudgeRTPulled() bool {
 }
 
 func (xg *XinputGamepad) JudgeThumbLPulled() bool {
-	if xg.ThumbLX > XinputGamepadLeftThumbDeadzone {
+	if xg.ThumbLX > XinputGamepadLeftThumbDeadzone ||
+		xg.ThumbLX-XinputGamepadLeftThumbDeadzone < 0 {
 		return true
 	}
-	if xg.ThumbLY > XinputGamepadLeftThumbDeadzone {
+	if xg.ThumbLY > XinputGamepadLeftThumbDeadzone ||
+		xg.ThumbLY-XinputGamepadLeftThumbDeadzone < 0 {
 		return true
 	}
 	return false
 }
 
 func (xg *XinputGamepad) JudgeThumbRPulled() bool {
-	if xg.ThumbRX > XinputGamepadRightThumbDeadzone {
+	if xg.ThumbRX > XinputGamepadRightThumbDeadzone ||
+		xg.ThumbRX-XinputGamepadRightThumbDeadzone < 0 {
 		return true
 	}
-	if xg.ThumbRY > XinputGamepadRightThumbDeadzone {
+	if xg.ThumbRY > XinputGamepadRightThumbDeadzone ||
+		xg.ThumbRY-XinputGamepadRightThumbDeadzone < 0 {
 		return true
 	}
 	return false

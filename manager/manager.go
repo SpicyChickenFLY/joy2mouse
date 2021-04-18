@@ -1,6 +1,8 @@
 package manager
 
 import (
+	"errors"
+
 	"github.com/SpicyChickenFLY/xinput2mouse/keyboard"
 	"github.com/SpicyChickenFLY/xinput2mouse/mouse"
 	"github.com/SpicyChickenFLY/xinput2mouse/screen"
@@ -33,12 +35,23 @@ type Manager struct {
 // NewManager init new manager
 func NewManager() Manager {
 	return Manager{
-		kbSim: keyboard.NewSimulator(),
+		joystick: xgc.NewXGC(0),
+		kbSim:    keyboard.NewSimulator(),
 	}
 }
 
-// HandleEvent handle event
-func (m *Manager) HandleEvent(event, value int) error {
+// Loop
+func (m *Manager) Loop() error {
+	for true {
+		if err := m.handleEvent(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// handleEvent handle event
+func (m *Manager) handleEvent() error {
 	stateInter, err := m.joystick.GetState()
 	if err != nil {
 		return err
@@ -67,8 +80,9 @@ func (m *Manager) HandleEvent(event, value int) error {
 			m.changeNextMode()
 			return nil
 		case (state.Gamepad.Buttons & xgc.XinputGamepadStart) > 0:
-			m.changeScreenMode()
-			return nil
+			// m.changeScreenMode()
+			// return nil
+			panic(errors.New("DEBUG"))
 		}
 
 		switch m.mode { // Deliver event to correspond simulator
