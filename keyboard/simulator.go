@@ -121,6 +121,7 @@ func (s *Simulator) handleThumb() error {
 	return nil
 }
 
+// FIXME: 需要对单次的按键Key Up做出反应而不是Key Down
 func (s *Simulator) handleDpad() error {
 	if s.buttons&xgc.XinputGamepadDpad > 0 {
 		if s.ltPulled {
