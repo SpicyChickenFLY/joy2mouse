@@ -19,3 +19,7 @@ func TBPrint(x, y int, fg, bg termbox.Attribute, msg string) {
 func Flush() {
 	termbox.Flush()
 }
+
+func Clear(fg, bg termbox.Attribute) error {
+	return termbox.Clear(fg, bg)
+}

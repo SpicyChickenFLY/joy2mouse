@@ -29,7 +29,9 @@ func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
 }
 
 func (s *Simulator) render() error {
+	utils.Clear(0, 0)
 	utils.TBPrint(0, 0, 0, termbox.ColorRed, ">>mouse")
+	utils.Flush()
 	return nil
 }
 

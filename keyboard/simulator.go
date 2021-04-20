@@ -44,6 +44,9 @@ func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
 }
 
 func (s *Simulator) render() error {
+	if err := utils.Clear(0, 0); err != nil {
+		return err
+	}
 	utils.TBPrint(0, 0, 0, termbox.ColorRed, ">>keyboard")
 	for i, sec := range *s.alphabetDict {
 		if i == s.lSec {
@@ -93,10 +96,11 @@ func (s *Simulator) judgeLPosSec(xg *xgc.XinputGamepad) {
 }
 
 func (s *Simulator) judgeRPosSec(xg *xgc.XinputGamepad) {
-	if xg.JudgeThumbRPulled() {
+	if xg.JudgeThumbRPulled() && s.lSec != -1 {
 		rx := float64(xg.ThumbRX) / xgc.ThumbMax
 		ry := float64(xg.ThumbRY) / xgc.ThumbMax
-		rl := len(*s.alphabetDict)
+
+		rl := len((*s.alphabetDict)[s.lSec])
 		s.rSec = judgePosSection(rx, ry, rl)
 	} else {
 		s.rSec = -1
