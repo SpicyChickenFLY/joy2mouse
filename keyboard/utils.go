@@ -14,20 +14,31 @@ import (
 func judgePosSection(x, y float64, l int) int {
 	// FIXME: How to translate (x,y) to degree properly
 	// 将极坐标正方向反转后逆时针旋转90度（求余用于溢出角度）
-	degree := int(calculateDegree(x, y)+90) % 360
+	rad := rect2Polar(x, y)
+	originDegree := rad2degree(rad)
+	utils.TBPrint(40, 0, 0, 0, fmt.Sprintf("%.2f", originDegree))
+	offsetDegree := int(originDegree)
+	reverseDegree := offsetDegree*(-1) + 360
+	degree := (reverseDegree + 90) % 360
+	utils.TBPrint(60, 0, 0, 0, fmt.Sprintf("%8d", degree))
 	interval := 360.0 / l
-	utils.TBPrint(20, 0, 0, 0, fmt.Sprintf("%.2f/%.2f %3d/%3d", x, y, degree, interval))
+
 	if degree/interval > l {
-		errStr := fmt.Sprintf("l:%d,d:%d,i:%d-%d", l, degree, interval, degree/interval)
+		errStr := fmt.Sprintf("out of range: Thumb Degree")
 		panic(errors.New(errStr))
 	}
 	return degree / interval
 }
 
-func calculateDegree(x, y float64) float64 {
+func rect2Polar(x, y float64) (rad float64) {
 	if y > 0 {
-		return math.Acos(x / math.Sqrt(x*x+y*y))
+		rad = math.Acos(x / math.Sqrt(x*x+y*y))
 	} else {
-		return math.Pi*2 - math.Acos(x/math.Sqrt(x*x+y*y))
+		rad = math.Pi*2 - math.Acos(x/math.Sqrt(x*x+y*y))
 	}
+	return rad
+}
+
+func rad2degree(r float64) float64 {
+	return r * 180 / math.Pi
 }
