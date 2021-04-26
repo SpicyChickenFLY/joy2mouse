@@ -25,8 +25,8 @@ func NewSimulator() *Simulator {
 	return nil
 }
 
-// Handle xinput event
-func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
+// Update xinput event
+func (s *Simulator) Update(xg *xgc.XinputGamepad) error {
 	s.ltPulled = xg.JudgeLTPulled()
 	s.rtPulled = xg.JudgeRTPulled()
 	if s.ltPulled {
@@ -40,7 +40,7 @@ func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
 	}
 	s.judgeLPosSec(xg)
 	s.judgeRPosSec(xg)
-	return s.handle()
+	return nil
 }
 
 func (s *Simulator) render() error {
@@ -69,7 +69,7 @@ func (s *Simulator) render() error {
 	return nil
 }
 
-func (s *Simulator) handle() error {
+func (s *Simulator) HandleEvent(eventIdx uint16) error {
 	// handle thumb output
 	if err := s.handleThumb(); err != nil {
 		return err
