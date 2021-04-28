@@ -42,18 +42,18 @@ func NewManager() Manager {
 	}
 }
 
-// Loop
+// Loop to update Joystick until
 func (m *Manager) Loop() error {
 	for true {
-		// FIXME: 应当在此处对所有的按键、Trigger、摇杆的变化进行检测
-		if err := m.checkJoystick(); err != nil {
+		// FIXME: 最后应当要保证
+		if err := m.updateJoystick(); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (m *Manager) checkJoystick() error {
+func (m *Manager) updateJoystick() error {
 	// 检查手柄状态有无变化
 	stateInter, err := m.joystick.GetState()
 	if err != nil {
