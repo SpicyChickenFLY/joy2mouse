@@ -40,7 +40,7 @@ func (s *Simulator) Update(xg *xgc.XinputGamepad) error {
 	}
 	s.judgeLPosSec(xg)
 	s.judgeRPosSec(xg)
-	return nil
+	return s.render()
 }
 
 func (s *Simulator) render() error {
@@ -69,16 +69,17 @@ func (s *Simulator) render() error {
 	return nil
 }
 
+// HandleEvent which manager dispatched
 func (s *Simulator) HandleEvent(eventIdx uint16) error {
 	// handle thumb output
-	if err := s.handleThumb(); err != nil {
+	if err := s.handleThumb(eventIdx); err != nil {
 		return err
 	}
 	// judge rest xinput by order
-	if err := s.handleDpad(); err != nil {
+	if err := s.handleDpad(eventIdx); err != nil {
 		return err
 	}
-	if err := s.handleMain(); err != nil {
+	if err := s.handleMain(eventIdx); err != nil {
 		return err
 	}
 	return s.handleFunc()
@@ -107,7 +108,7 @@ func (s *Simulator) judgeRPosSec(xg *xgc.XinputGamepad) {
 	}
 }
 
-func (s *Simulator) handleThumb() error {
+func (s *Simulator) handleThumb(eventIdx uint16) error {
 	// if Right Trigger pulled, judge which key should be simulated
 	if s.rtPulled && s.lSec > 0 && s.rSec > 0 {
 		keyVal := (*s.alphabetDict)[s.lSec][s.rSec]
@@ -121,68 +122,30 @@ func (s *Simulator) handleThumb() error {
 	return nil
 }
 
-// FIXME: 需要对单次的按键Key Up做出反应而不是Key Down
-func (s *Simulator) handleDpad() error {
-	if s.buttons&xgc.XinputGamepadDpad > 0 {
-		if s.ltPulled {
-			switch {
-			case s.buttons&xgc.XinputGamepadDpadUp > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["PAGEUP"].VK)
-			case s.buttons&xgc.XinputGamepadDpadDown > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["PAGEDOWN"].VK)
-			case s.buttons&xgc.XinputGamepadDpadLeft > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["HOME"].VK)
-			case s.buttons&xgc.XinputGamepadDpadRight > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["HOME"].VK)
-			}
-		} else {
-			switch {
-			case s.buttons&xgc.XinputGamepadDpadUp > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["UP"].VK)
-			case s.buttons&xgc.XinputGamepadDpadDown > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["DOWN"].VK)
-			case s.buttons&xgc.XinputGamepadDpadLeft > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["LEFT"].VK)
-			case s.buttons&xgc.XinputGamepadDpadRight > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["RIGHT"].VK)
-			}
-		}
-		err := s.kbBond.Launching()
-		if err != nil {
-			return err
-		}
-		return nil
+func (s *Simulator) handleDpad(eventIdx uint16) error {
+	var vk int
+	if s.ltPulled {
+		vk = event.KeyInfoMap[dpadKeyDict[0][eventIdx]].VK
+	} else {
+		vk = event.KeyInfoMap[dpadKeyDict[1][eventIdx]].VK
 	}
-	return nil
+	s.kbBond.AddKey(vk)
+	return s.kbBond.Launching()
 }
 
-func (s *Simulator) handleMain() error {
-	if s.buttons&xgc.XinputGamepadMain > 0 {
-		if s.ltPulled {
-			switch {
-			case s.buttons&xgc.XinputGamepadY > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["TAB"].VK)
-				s.kbBond.HasSHIFT(true)
-			}
-		} else {
-			switch {
-			case s.buttons&xgc.XinputGamepadA > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["SPACE"].VK)
-			case s.buttons&xgc.XinputGamepadB > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["ENTER"].VK)
-			case s.buttons&xgc.XinputGamepadX > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["BACKSPACE"].VK)
-			case s.buttons&xgc.XinputGamepadY > 0:
-				s.kbBond.AddKey(event.KeyInfoMap["TAB"].VK)
-			}
+func (s *Simulator) handleMain(eventIdx uint16) error {
+	var vk int
+	if s.ltPulled {
+		vk = event.KeyInfoMap[mainKeyDict[0][eventIdx]].VK
+		switch eventIdx {
+		case xgc.XinputGamepadY:
+			s.kbBond.HasSHIFT(true)
 		}
-		s.kbBond.HasSHIFT(false)
-		err := s.kbBond.Launching()
-		if err != nil {
-			return err
-		}
+	} else {
+		vk = event.KeyInfoMap[mainKeyDict[1][eventIdx]].VK
 	}
-	return nil
+	s.kbBond.AddKey(vk)
+	return s.kbBond.Launching()
 }
 
 func (s *Simulator) handleFunc() error {
