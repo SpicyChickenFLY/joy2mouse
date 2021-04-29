@@ -10,12 +10,14 @@ const (
 	KBEventHasWin   = 0x0008
 )
 
-type keyInfo struct {
+// KeyInfo contain virtual key and key flags
+type KeyInfo struct {
 	VK   int
-	Flag int
+	Flag uint16
 }
 
-var KeyInfoMap = map[string]keyInfo{
+// KeyInfoMap map all key to
+var KeyInfoMap = map[string]KeyInfo{
 	"a": {keybd_event.VK_A, KBEventNoFlag},
 	"b": {keybd_event.VK_B, KBEventNoFlag},
 	"c": {keybd_event.VK_C, KBEventNoFlag},
@@ -130,4 +132,9 @@ var KeyInfoMap = map[string]keyInfo{
 	"END":      {keybd_event.VK_END, KBEventNoFlag},
 	"PAGEUP":   {keybd_event.VK_PAGEUP, KBEventNoFlag},
 	"PAGEDOWN": {keybd_event.VK_PAGEDOWN, KBEventNoFlag},
+}
+
+// Add Flags
+func (ki KeyInfo) AddFlags(flag uint16) {
+	ki.Flag |= flag
 }

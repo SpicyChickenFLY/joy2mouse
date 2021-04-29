@@ -10,7 +10,6 @@ import (
 
 //Simulator is the struct of keyboard simulator
 type Simulator struct {
-	kbBond             keybd_event.KeyBonding
 	ltPulled, rtPulled bool
 	buttons            uint16
 	lSec, rSec         int
@@ -19,10 +18,7 @@ type Simulator struct {
 
 // NewSimulator init new keyboard simulator
 func NewSimulator() *Simulator {
-	if kbBond, err := keybd_event.NewKeyBonding(); err == nil {
-		return &Simulator{kbBond, false, false, 0, -1, -1, nil}
-	}
-	return nil
+	return &Simulator{false, false, 0, -1, -1, nil}
 }
 
 // Update xinput event
@@ -75,14 +71,15 @@ func (s *Simulator) HandleEvent(eventIdx uint16) error {
 	if err := s.handleThumb(eventIdx); err != nil {
 		return err
 	}
-	// judge rest xinput by order
-	if err := s.handleDpad(eventIdx); err != nil {
-		return err
+	switch {
+	case eventIdx&xgc.XinputGamepadDpad > 0:
+		return s.handleDpad(eventIdx)
+	case eventIdx&xgc.XinputGamepadMain > 0:
+		return s.handleMain(eventIdx)
+	case eventIdx&xgc.XinputGamepadFunc > 0:
+		return s.handleFunc(eventIdx)
 	}
-	if err := s.handleMain(eventIdx); err != nil {
-		return err
-	}
-	return s.handleFunc()
+	return nil
 }
 
 func (s *Simulator) judgeLPosSec(xg *xgc.XinputGamepad) {
@@ -100,7 +97,6 @@ func (s *Simulator) judgeRPosSec(xg *xgc.XinputGamepad) {
 	if xg.JudgeThumbRPulled() && s.lSec != -1 {
 		rx := float64(xg.ThumbRX) / xgc.ThumbMax
 		ry := float64(xg.ThumbRY) / xgc.ThumbMax
-
 		rl := len((*s.alphabetDict)[s.lSec])
 		s.rSec = judgePosSection(rx, ry, rl)
 	} else {
@@ -109,45 +105,63 @@ func (s *Simulator) judgeRPosSec(xg *xgc.XinputGamepad) {
 }
 
 func (s *Simulator) handleThumb(eventIdx uint16) error {
+	kbBond, err := keybd_event.NewKeyBonding()
+	if err == nil {
+		return err
+	}
 	// if Right Trigger pulled, judge which key should be simulated
 	if s.rtPulled && s.lSec > 0 && s.rSec > 0 {
 		keyVal := (*s.alphabetDict)[s.lSec][s.rSec]
-		s.kbBond.AddKey(event.KeyInfoMap[keyVal].VK)
-		s.kbBond.HasSHIFT(event.KeyInfoMap[keyVal].Flag&event.KBEventHasShift > 0)
-		err := s.kbBond.Launching()
-		if err != nil {
-			return err
-		}
+		kbBond.AddKey(event.KeyInfoMap[keyVal].VK)
+		kbBond.HasSHIFT(
+			event.KeyInfoMap[keyVal].Flag&event.KBEventHasShift > 0)
+		return kbBond.Launching()
 	}
 	return nil
 }
 
 func (s *Simulator) handleDpad(eventIdx uint16) error {
-	var vk int
-	if s.ltPulled {
-		vk = event.KeyInfoMap[dpadKeyDict[0][eventIdx]].VK
-	} else {
-		vk = event.KeyInfoMap[dpadKeyDict[1][eventIdx]].VK
+	kbBond, err := keybd_event.NewKeyBonding()
+	if err == nil {
+		return err
 	}
-	s.kbBond.AddKey(vk)
-	return s.kbBond.Launching()
+	if s.ltPulled {
+		for _, vk := range dpadKeysDict[0][eventIdx] {
+			kbBond.AddKey(event.KeyInfoMap[vk].VK)
+		}
+	} else {
+		for _, vk := range dpadKeysDict[1][eventIdx] {
+			kbBond.AddKey(event.KeyInfoMap[vk].VK)
+		}
+	}
+	return kbBond.Launching()
 }
 
 func (s *Simulator) handleMain(eventIdx uint16) error {
-	var vk int
+	kbBond, err := keybd_event.NewKeyBonding()
+	if err == nil {
+		return err
+	}
 	if s.ltPulled {
-		vk = event.KeyInfoMap[mainKeyDict[0][eventIdx]].VK
+		for _, vk := range mainKeysDict[0][eventIdx] {
+			kbBond.AddKey(event.KeyInfoMap[vk].VK)
+		}
 		switch eventIdx {
 		case xgc.XinputGamepadY:
-			s.kbBond.HasSHIFT(true)
+			kbBond.HasSHIFT(true)
 		}
 	} else {
-		vk = event.KeyInfoMap[mainKeyDict[1][eventIdx]].VK
+		for _, vk := range mainKeysDict[0][eventIdx] {
+			kbBond.AddKey(event.KeyInfoMap[vk].VK)
+		}
 	}
-	s.kbBond.AddKey(vk)
-	return s.kbBond.Launching()
+	return kbBond.Launching()
 }
 
-func (s *Simulator) handleFunc() error {
-	return nil
+func (s *Simulator) handleFunc(eventIdx uint16) error {
+	kbBond, err := keybd_event.NewKeyBonding()
+	if err == nil {
+		return err
+	}
+	return kbBond.Launching()
 }

@@ -12,7 +12,6 @@ import (
 // x, y: 横纵坐标（代表摇杆对应的百分比）
 // l: 代表该圆中存在几个扇形
 func judgePosSection(x, y float64, l int) int {
-	// FIXME: How to translate (x,y) to degree properly
 	// 将极坐标正方向反转后逆时针旋转90度（求余用于溢出角度）
 	rad := rect2Polar(x, y)
 	originDegree := rad2degree(rad)
