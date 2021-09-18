@@ -65,7 +65,7 @@ func (s *Simulator) render() error {
 	return nil
 }
 
-// HandleEvent which manager dispatched
+// HandleEvent which manager dispatched to keyborad event
 func (s *Simulator) HandleEvent(eventIdx uint16) error {
 	// handle thumb output
 	if err := s.handleThumb(eventIdx); err != nil {

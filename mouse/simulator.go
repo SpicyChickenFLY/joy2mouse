@@ -22,11 +22,13 @@ func NewSimulator() *Simulator {
 	return nil
 }
 
-// Handle xinput event
-func (s *Simulator) Handle(xg *xgc.XinputGamepad) error {
+// HandleEvent xinput event to mouse event
+func (s *Simulator) HandleEvent(xg *xgc.XinputGamepad) error {
 	s.render()
 	return nil
 }
+
+// HandleThumbEvent to change the basic move speed of mouse
 
 func (s *Simulator) render() error {
 	if err := utils.Clear(0, 0); err != nil {

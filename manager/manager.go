@@ -45,7 +45,7 @@ func NewManager() Manager {
 // Loop to update Joystick until
 func (m *Manager) Loop() error {
 	for true {
-		// FIXME: 最后应当要保证
+		// FIXME: 最后应当要保证(什么？)
 		if err := m.updateJoystick(); err != nil {
 			return err
 		}
